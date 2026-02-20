@@ -1,0 +1,105 @@
+### EQUIPO
+GET http://localhost:3000/api/equipo/ HTTP/1.1
+
+###
+GET http://localhost:3000/api/equipo/1 HTTP/1.1
+
+###
+GET http://localhost:3000/api/equipo/funcionarios/todos HTTP/1.1
+
+###
+POST http://localhost:3000/api/equipo/ HTTP/1.1
+ Content-Type: application/json
+
+ {
+    "nombre": "Miguel Daza",
+    "cargo": "Director TI",
+    "rol": "Gestión",
+    "foto": "https://example.com/fotos/miguel_daza.jpg"
+ }
+
+###
+PATCH http://localhost:3000/api/equipo/11 HTTP/1.1
+ Content-Type: application/json
+
+ {
+    "foto": "https://funcionarios.ccvalledupar.org.co/timeittemporal/img/fotoshojadevida/2024-02-1313176MIGUEL%20ANGEL%20DAZA%20CASTILLEJO.png"
+ }
+
+### 
+DELETE http://localhost:3000/api/equipo/1 HTTP/1.1
+
+
+### SOLICITUDES
+GET http://localhost:3000/api/solicitudes/ HTTP/1.1
+
+###
+POST http://localhost:3000/api/solicitudes/ HTTP/1.1
+   Content-Type: application/json
+   
+   {
+      "actividad": "Creación de nuevo aplicativo funcionarios",
+      "justificacion": "El aplicativo funcionarios actual está obsoleto y no cumple con las necesidades actuales de la organización. Se requiere un nuevo desarrollo que permita una mejor gestión de los datos de los funcionarios, así como una interfaz más amigable y funcionalidades adicionales como reportes personalizados y acceso móvil.",
+      "solicitante": 5
+   }
+
+###
+PATCH http://localhost:3000/api/solicitudes/5/decision HTTP/1/1
+   Content-Type: application/json
+   
+   {
+      "estado": "Aprobada",
+      "responsable": 5,
+      "prioridad": "Alta",
+      "observaciones": "La solicitud ha sido aprobada. Se asignará al equipo de desarrollo para su ejecución. Se recomienda iniciar con un análisis de requerimientos detallado y definir un cronograma de trabajo."
+   }
+
+###
+PATCH http://localhost:3000/api/solicitudes/2/decision HTTP/1/1
+   Content-Type: application/json
+   
+   {
+      "estado": "Rechazada",
+      "observaciones": "La solicitud no es decisión del área de tecnología. Se recomienda al solicitante revisar las políticas internas y dirigir la solicitud al área de infraestructura."
+   }
+
+### LOGIN
+POST http://localhost:3000/api/login/ HTTP/1.1
+   Content-Type: application/json
+
+   {
+      "correo": "1067806081",
+      "clave": "07092022%"
+   }
+
+### ACTIVIDADES
+GET http://localhost:3000/api/actividades/ HTTP/1.1
+
+###
+POST http://localhost:3000/api/actividades/ HTTP/1.1
+   Content-Type: application/json
+
+   {
+      "tarea": "Desarrollar Aplicación de reparto de documentos",
+      "tipo": "Padre",
+      "padre": null,
+      "prioridad": "Media",
+      "responsable_id": 5,
+      "estado": "No iniciada",
+      "avance": 0,
+      "solicitud_id": 5
+   }
+
+###
+POST http://localhost:3000/api/actividades/apoyos HTTP/1.1
+   Content-Type: application/json
+
+   {
+      "actividad_id": 1,
+      "usuario_id": 5
+   }
+
+###
+GET http://localhost:3000/api/actividades/responsable/4 HTTP/1.1
+
+
