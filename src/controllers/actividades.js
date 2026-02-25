@@ -9,7 +9,7 @@ export const crearActividad = async (req, res) => {
             INSERT INTO actividades (tarea, tipo, padre, prioridad, responsable_id, estado, avance, solicitud_id) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        const [result] = await pool.query(query, [tarea, tipo, padre, prioridad, responsable_id, estado, avance, solicitud_id]);
+        const [result] = await pool.query(query, [tarea, tipo, padre, prioridad, responsable_id, "No iniciada", 0, solicitud_id]);
 
         res.status(201).json({
             message: "Actividad creada con éxito.",
@@ -101,16 +101,24 @@ export const cambiarEstadoActividad = async (req, res) => {
 // 6. Asignar o cambiar el responsable de una actividad
 export const asignarResponsableActividad = async (req, res) => {
     const { id } = req.params;
-    const { responsable } = req.body; // ID del nuevo responsable
+    const { responsable_id } = req.body; // ID del nuevo responsable
     try {
         const query = 'UPDATE actividades SET responsable_id = ? WHERE id = ?';
 
-        const [result] = await pool.query(query, [responsable, id]);
+        const [result] = await pool.query(query, [responsable_id, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: "Actividad no encontrada." });
         }
-
-        res.json({ message: "Responsable de la actividad actualizado con éxito." });
+        const query2 = `
+        SELECT a.*, e.nombre AS nombre_responsable, GROUP_CONCAT(e_apoyo.nombre SEPARATOR ', ') AS nombres_apoyos
+            FROM actividades a
+            JOIN equipo e ON a.responsable_id = e.id
+            LEFT JOIN actividad_apoyos ap ON a.id = ap.actividad_id
+            LEFT JOIN equipo e_apoyo ON ap.usuario_id = e_apoyo.id
+            WHERE a.id = ?
+        `
+        const [activity] = await pool.query(query2, [id]);
+        res.json({ message: "Responsable de la actividad actualizado con éxito.", data: activity });
     }
     catch (error) {
         res.status(500).json({ message: "Error al actualizar el responsable de la actividad", error: error.message });
@@ -256,7 +264,7 @@ export const getActividadPorId = async (req, res) => {
     const { id } = req.params;
     try {
         const query = `
-            SELECT a.*, e.nombre AS nombre_responsable, GROUP_CONCAT(e_apoyo.nombre SEPARATOR ', ') AS nombres_apoyos
+            SELECT a.*, e.nombre AS nombre_responsable, GROUP_CONCAT(e_apoyo.nombre SEPARATOR ', ') AS nombres_apoyos, GROUP_CONCAT(e_apoyo.id SEPARATOR ', ') AS ids_apoyos
             FROM actividades a
             JOIN equipo e ON a.responsable_id = e.id
             LEFT JOIN actividad_apoyos ap ON a.id = ap.actividad_id
@@ -303,3 +311,33 @@ export const getActividadesPorApoyo = async (req, res) => {
         res.status(500).json({ message: "Error al obtener las actividades por apoyo", error: error.message });
     }
 };
+
+// Asignar multiples apoyos a una actividad
+export const asignarMultiplesApoyos = async (req, res) => {
+    const { actividad_id, usuario_ids } = req.body;
+    try {
+        const query = 'INSERT INTO actividad_apoyos (actividad_id, usuario_id) VALUES (?, ?)';
+
+        for (const usuario_id of usuario_ids) {
+            await pool.query(query, [actividad_id, usuario_id]);
+        }
+
+        res.json({ message: "Personal de apoyo asignado a la actividad con éxito." });
+    } catch (error) {
+        res.status(500).json({ message: "Error al asignar personal de apoyo a la actividad", error: error.message });
+    }
+};
+
+export const eliminarApoyo = async (req, res) => {
+    const { id, apoyo_id } = req.params;
+    try {
+        const query = 'DELETE FROM actividad_apoyos WHERE actividad_id = ? AND usuario_id = ?';
+        const [result] = await pool.query(query, [id, apoyo_id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Apoyo no encontrado en la actividad." });
+        }
+        res.json({ message: "Apoyo eliminado de la actividad con éxito." });
+    } catch (error) {
+        res.status(500).json({ message: "Error al eliminar el apoyo de la actividad", error: error.message });
+    }
+}

@@ -1,4 +1,4 @@
-import { crearActividad, getActividades, getActividadPorId, getActividadesPorEstado, getActividadesPorFecha, getActividadesPorResponsable, getConteoActividadesPorEstado, getConteoActividadesPorResponsable, eliminarActividad, actualizarActividad, cambiarEstadoActividad, asignarResponsableActividad, iniciarActividad, completarActividad, modificarAvanceActividad, getActividadesPorApoyo, asignarApoyoActividad } from '../controllers/actividades.js';
+import { crearActividad, getActividades, getActividadPorId, getActividadesPorEstado, getActividadesPorFecha, getActividadesPorResponsable, getConteoActividadesPorEstado, getConteoActividadesPorResponsable, eliminarActividad, actualizarActividad, cambiarEstadoActividad, asignarResponsableActividad, iniciarActividad, completarActividad, modificarAvanceActividad, getActividadesPorApoyo, asignarApoyoActividad, asignarMultiplesApoyos, eliminarApoyo } from '../controllers/actividades.js';
 import { Router } from 'express';
 
 const actividadesRouter = Router();
@@ -20,7 +20,9 @@ actividadesRouter.patch('/:id/iniciar', iniciarActividad);
 actividadesRouter.patch('/:id/completar', completarActividad);
 actividadesRouter.patch('/:id/avance', modificarAvanceActividad);
 actividadesRouter.get("/apoyos/:apoyoId", getActividadesPorApoyo);
-actividadesRouter.post("/apoyos", asignarApoyoActividad);
+actividadesRouter.post("/apoyos", asignarMultiplesApoyos);
+actividadesRouter.delete("/:id/apoyos/:apoyo_id", eliminarApoyo);
+
 
 
 export default actividadesRouter;

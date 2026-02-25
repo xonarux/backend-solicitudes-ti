@@ -73,33 +73,44 @@ POST http://localhost:3000/api/login/ HTTP/1.1
    }
 
 ### ACTIVIDADES
-GET http://localhost:3000/api/actividades/ HTTP/1.1
+GET http://localhost:3000/api/actividades/6 HTTP/1.1
 
 ###
 POST http://localhost:3000/api/actividades/ HTTP/1.1
    Content-Type: application/json
 
    {
-      "tarea": "Desarrollar Aplicación de reparto de documentos",
+      "tarea": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis, officiis soluta porro aliquid modi animi in veritatis, facere cumque libero officia repellat quae! Non commodi quis magni beatae deserunt voluptatibus neque, aperiam quam aspernatur accusamus obcaecati nisi fugiat iusto. Iure veritatis at qui impedit? Assumenda labore alias ipsam molestiae numquam.",
       "tipo": "Padre",
       "padre": null,
       "prioridad": "Media",
-      "responsable_id": 5,
+      "responsable_id": 10,
       "estado": "No iniciada",
       "avance": 0,
       "solicitud_id": 5
    }
 
 ###
-POST http://localhost:3000/api/actividades/apoyos HTTP/1.1
-   Content-Type: application/json
-
-   {
-      "actividad_id": 1,
-      "usuario_id": 5
-   }
-
-###
 GET http://localhost:3000/api/actividades/responsable/4 HTTP/1.1
 
 
+###
+PATCH http://localhost:3000/api/actividades/6/responsable HTTP/1.1
+ Content-Type: application/json
+
+   {
+      "responsable_id":7 
+   }
+
+###
+POST http://localhost:3000/api/actividades/apoyos HTTP/1.1
+ Content-Type: application/json
+
+ {
+   "actividad_id": 6,
+   "usuario_ids": [9]
+ }
+
+###
+DELETE http://localhost:3000/api/actividades/6/apoyos/3 HTTP/1.1
+ Content-Type: application/json
