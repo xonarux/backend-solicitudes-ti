@@ -103,7 +103,7 @@ export const deleteEquipoMember = async (req, res) => {
     const { id } = req.params;
     try {
         const [result] = await pool.query(
-            'DELETE FROM equipo WHERE id = ?',
+            'UPDATE equipo SET rol = "Suspendido" WHERE id = ?',
             [id]
         );
         if (result.affectedRows === 0) {

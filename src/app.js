@@ -58,7 +58,9 @@ app.get('/', (req, res) => {
                 "GET /conteo/estado": "Obtener conteo de actividades por estado",
                 "GET /conteo/responsable": "Obtener conteo de actividades por responsable",
                 "GET /apoyos": "Obtener actividades con sus apoyos",
-                "POST /apoyos": "Asignar un apoyo a una actividad"
+                "POST /apoyos": "Asignar un apoyo a una actividad",
+                "GET /hijas/:id": "Obtener actividades hijas de una actividad padre",
+                "PATCH /:id/evidencia": "Agregar evidencia a una actividad"
 
             },
             "/api/login": {

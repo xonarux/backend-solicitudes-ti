@@ -1,4 +1,4 @@
-import { crearActividad, getActividades, getActividadPorId, getActividadesPorEstado, getActividadesPorFecha, getActividadesPorResponsable, getConteoActividadesPorEstado, getConteoActividadesPorResponsable, eliminarActividad, actualizarActividad, cambiarEstadoActividad, asignarResponsableActividad, iniciarActividad, completarActividad, modificarAvanceActividad, getActividadesPorApoyo, asignarApoyoActividad, asignarMultiplesApoyos, eliminarApoyo } from '../controllers/actividades.js';
+import { crearActividad, getActividades, getActividadPorId, getActividadesPorEstado, getActividadesPorFecha, getActividadesPorResponsable, getConteoActividadesPorEstado, getConteoActividadesPorResponsable, eliminarActividad, actualizarActividad, cambiarEstadoActividad, asignarResponsableActividad, iniciarActividad, completarActividad, modificarAvanceActividad, getActividadesPorApoyo, asignarApoyoActividad, asignarMultiplesApoyos, eliminarApoyo, buscarActividadesHijas, agregarEvidenciaActividad } from '../controllers/actividades.js';
 import { Router } from 'express';
 
 const actividadesRouter = Router();
@@ -6,8 +6,8 @@ const actividadesRouter = Router();
 // Rutas para actividades
 actividadesRouter.post('/', crearActividad);
 actividadesRouter.get('/', getActividades);
-actividadesRouter.get('/:id', getActividadPorId); // Para obtener una actividad específica por ID
-actividadesRouter.get('/estado/:estado', getActividadesPorEstado);
+actividadesRouter.get('/:id', getActividadPorId);
+actividadesRouter.get('/consultar/estado/:estado', getActividadesPorEstado);
 actividadesRouter.get('/fecha/:fecha', getActividadesPorFecha);
 actividadesRouter.get('/responsable/:responsableId', getActividadesPorResponsable);
 actividadesRouter.get('/conteo/estado', getConteoActividadesPorEstado);
@@ -22,7 +22,9 @@ actividadesRouter.patch('/:id/avance', modificarAvanceActividad);
 actividadesRouter.get("/apoyos/:apoyoId", getActividadesPorApoyo);
 actividadesRouter.post("/apoyos", asignarMultiplesApoyos);
 actividadesRouter.delete("/:id/apoyos/:apoyo_id", eliminarApoyo);
-
+//buscar actividades hijas de una actividad padre
+actividadesRouter.get("/hijas/:id", buscarActividadesHijas);
+actividadesRouter.patch("/:id/evidencias", agregarEvidenciaActividad);
 
 
 export default actividadesRouter;

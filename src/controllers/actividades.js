@@ -47,15 +47,15 @@ export const getActividades = async (req, res) => {
 // 3. Actualizar una actividad
 export const actualizarActividad = async (req, res) => {
     const { id } = req.params;
-    const { tarea, tipo, padre, prioridad, responsable_id, estado, avance, solicitud_id } = req.body;
+    const { tarea, tipo, padre, prioridad, responsable_id, estado, avance, solicitud_id, evidencias } = req.body;
 
     try {
         const query = `
             UPDATE actividades 
-            SET tarea = ?, tipo = ?, padre = ?, prioridad = ?, responsable_id = ?, estado = ?, avance = ?, solicitud_id = ?
+            SET tarea = ?, tipo = ?, padre = ?, prioridad = ?, responsable_id = ?, estado = ?, avance = ?, solicitud_id = ?, evidencias = ?
             WHERE id = ?
         `;
-        const [result] = await pool.query(query, [tarea, tipo, padre, prioridad, responsable_id, estado, avance, solicitud_id, id]);
+        const [result] = await pool.query(query, [tarea, tipo, padre, prioridad, responsable_id, estado, avance, solicitud_id, evidencias, id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: "Actividad no encontrada." });
@@ -67,11 +67,11 @@ export const actualizarActividad = async (req, res) => {
     }
 };
 
-// 4. Eliminar una actividad
+// 4. Eliminar una actividad logicamente (cambiar su estado a "Eliminada")
 export const eliminarActividad = async (req, res) => {
     const { id } = req.params;
     try {
-        const query = 'DELETE FROM actividades WHERE id = ?';
+        const query = 'UPDATE actividades SET estado = "Eliminada", fecha_final = NOW() WHERE id = ?';
         const [result] = await pool.query(query, [id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: "Actividad no encontrada." });
@@ -147,15 +147,19 @@ export const getActividadesPorResponsable = async (req, res) => {
 
 // 8. Obtener actividades por estado
 export const getActividadesPorEstado = async (req, res) => {
-    const { estado } = req.params; // Ej: "Pendiente", "En Progreso", "Completada"
+    const { estado } = req.params;
     try {
         const query = `
-            SELECT a.*, e.nombre AS nombre_responsable, GROUP_CONCAT(e_apoyo.nombre SEPARATOR ', ') AS nombres_apoyos      
+            SELECT 
+                a.*, 
+                e.nombre AS nombre_responsable, 
+                GROUP_CONCAT(e_apoyo.nombre SEPARATOR ', ') AS nombres_apoyos
             FROM actividades a
             JOIN equipo e ON a.responsable_id = e.id
             LEFT JOIN actividad_apoyos ap ON a.id = ap.actividad_id
             LEFT JOIN equipo e_apoyo ON ap.usuario_id = e_apoyo.id
-            WHERE a.estado = ?  
+            WHERE a.estado = ?
+            GROUP BY a.id  -- Esta es la línea clave
         `;
         const [actividades] = await pool.query(query, [estado]);
         res.json(actividades);
@@ -328,6 +332,7 @@ export const asignarMultiplesApoyos = async (req, res) => {
     }
 };
 
+
 export const eliminarApoyo = async (req, res) => {
     const { id, apoyo_id } = req.params;
     try {
@@ -339,5 +344,39 @@ export const eliminarApoyo = async (req, res) => {
         res.json({ message: "Apoyo eliminado de la actividad con éxito." });
     } catch (error) {
         res.status(500).json({ message: "Error al eliminar el apoyo de la actividad", error: error.message });
+    }
+}
+
+export const buscarActividadesHijas = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT a.*, e.nombre AS nombre_responsable, GROUP_CONCAT(e_apoyo.nombre SEPARATOR ', ') AS nombres_apoyos
+            FROM actividades a
+            JOIN equipo e ON a.responsable_id = e.id
+            LEFT JOIN actividad_apoyos aa ON a.id = aa.actividad_id
+            LEFT JOIN equipo e_apoyo ON aa.usuario_id = e_apoyo.id
+            WHERE a.padre = ?
+        `;
+        const [result] = await pool.query(query, [id]);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: "Error al buscar actividades hijas", error: error.message });
+    }
+}
+
+//Agregar evidencia a una actividad
+export const agregarEvidenciaActividad = async (req, res) => {
+    const { id } = req.params;
+    const { evidencias } = req.body; // URL o descripción de la evidencia
+    try {
+        const query = 'UPDATE actividades SET evidencias = ? WHERE id = ?';
+        const [result] = await pool.query(query, [evidencias, id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Actividad no encontrada." });
+        }
+        res.json({ message: "Evidencias agregadas a la actividad con éxito." });
+    } catch (error) {
+        res.status(500).json({ message: "Error al agregar evidencias a la actividad", error: error.message });
     }
 }
